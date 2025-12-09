@@ -7,6 +7,7 @@ Turbocharge WezTerm with a glassy synthwave skin, crisp Meslo/JetBrains fonts, a
   - `wezterm start --config-file ./.wezterm.lua`
 - Verify fonts: `wezterm ls-fonts --list-system | grep MesloLGS` (JetBrains Mono is the fallback).
 - Check version for bug reports: `wezterm --version`.
+- Deploy everything (WezTerm config + MOTD): `bash deploy.sh`
 
 ## Highlights
 - Synthwave gradient background with light glass blur and dimmed inactive panes.
@@ -42,3 +43,8 @@ Turbocharge WezTerm with a glassy synthwave skin, crisp Meslo/JetBrains fonts, a
 - Fonts missing? Swap to any Nerd Font in `font_with_fallback`.
 - Colors look flat? Ensure GPU acceleration is on in WezTerm preferences.
 - Status bar misaligned? Check terminal width or reduce tab width via `tab_max_width`.
+
+## MOTD / Login Banner
+- Runs once per interactive shell: random ArtII font banner piped through `lolcat -a -d 6` plus system stats (host/IP, battery, disk, git, uptime/load).
+- No external font file needed; fonts are embedded in `.motd.sh`.
+- If you ever see Powerlevel10k warnings about console output, keep `POWERLEVEL9K_INSTANT_PROMPT=off` at the top of `~/.zshrc`.
