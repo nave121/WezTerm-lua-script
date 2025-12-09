@@ -13,13 +13,17 @@ Turbocharge WezTerm with a glassy synthwave skin, crisp Meslo/JetBrains fonts, a
 - Custom ANSI palette with neon lime “yellow” for legible prompts.
 - Integrated tab bar at the bottom, max width 40, with bold active tab contrast.
 - Right status bar shows hostname, time, and battery with color separators.
-- Toggleable opacity and a tight keybinding set for pane navigation.
+- Toggleable opacity and a tight keybinding set for tabs/panes.
+- Optional MOTD banner with random ASCII fonts, lolcat animation, and system stats.
 
 ## Keybindings (defaults in this config)
-- `ALT+Enter` fullscreen toggle
-- `ALT+q` quit WezTerm
-- `CTRL+SHIFT+B` toggle opacity (`toggle-opacity` event)
-- `ALT+h/j/k/l` move across panes
+- `ALT+Enter` — fullscreen toggle
+- `ALT+q` — quit WezTerm
+- `ALT+o` — toggle opacity (`toggle-opacity` event)
+- `ALT+s` / `ALT+d` — split pane vertical / horizontal
+- `ALT+t` / `ALT+w` — new tab / close current pane (with confirm)
+- `ALT+[ / ALT+]` — cycle tabs; `ALT+h/j/k/l` — focus left/down/up/right
+- `ALT+=` / `ALT+-` — increase/decrease font size
 
 ## Customize Fast
 - Colors: edit the `colors` table; keep hex strings and order gradients top→bottom.
@@ -32,6 +36,7 @@ Turbocharge WezTerm with a glassy synthwave skin, crisp Meslo/JetBrains fonts, a
 - Lua style: 2-space indent, locals by default, trailing commas in tables.
 - Event safety: `update-status` and `toggle-opacity` run hot; keep changes small and nil-check optional fields (like `cwd_uri`).
 - Validate manually: start WezTerm with this config, open a few panes, and confirm status bar, cursor, and tab visuals look right.
+- Deploy helper: `bash deploy.sh` copies `.wezterm.lua` to `~/.wezterm.lua`, `.motd.sh` to `~/.motd.sh`, sets exec bit, and appends a one-liner to `~/.zshrc` to run the MOTD once per shell. If Powerlevel10k instant prompt complains, it’s disabled at the top of `.zshrc` for the MOTD colors.
 
 ## Troubleshooting
 - Fonts missing? Swap to any Nerd Font in `font_with_fallback`.

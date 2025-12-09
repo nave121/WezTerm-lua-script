@@ -204,7 +204,15 @@ config.keys = {
   { key = 'Enter', mods = 'ALT',        action = act.ToggleFullScreen },
   { key = 'q',     mods = 'ALT',        action = act.QuitApplication },
 
-  { key = 'B',     mods = 'CTRL|SHIFT', action = act.EmitEvent 'toggle-opacity' },
+  { key = 'o',     mods = 'ALT',        action = act.EmitEvent 'toggle-opacity' },
+  { key = 's',     mods = 'ALT',        action = act.SplitVertical   { domain = 'CurrentPaneDomain' } },
+  { key = 'd',     mods = 'ALT',        action = act.SplitHorizontal { domain = 'CurrentPaneDomain' } },
+  { key = 't',     mods = 'ALT',        action = act.SpawnTab 'DefaultDomain' },
+  { key = 'w',     mods = 'ALT',        action = act.CloseCurrentPane { confirm = true } },
+  { key = '=',     mods = 'ALT',        action = act.IncreaseFontSize },
+  { key = '-',     mods = 'ALT',        action = act.DecreaseFontSize },
+  { key = '[',     mods = 'ALT',        action = act.ActivateTabRelative(-1) },
+  { key = ']',     mods = 'ALT',        action = act.ActivateTabRelative(1) },
 
   { key = 'h', mods = 'ALT',            action = act.ActivatePaneDirection 'Left'  },
   { key = 'l', mods = 'ALT',            action = act.ActivatePaneDirection 'Right' },
