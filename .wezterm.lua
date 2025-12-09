@@ -32,10 +32,11 @@ config.tab_bar_at_bottom = true
 config.tab_max_width = 40
 
 config.window_padding = {
+  -- keep prompt/text clear of the integrated macOS traffic lights
   left   = 6,
   right  = 6,
-  top    = 4,
-  bottom = 4,
+  top    = 30,
+  bottom = 6,
 }
 
 -- ============================================================
