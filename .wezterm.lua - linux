@@ -1,0 +1,230 @@
+local wezterm = require 'wezterm'
+local act = wezterm.action
+
+local config = wezterm.config_builder()
+config:set_strict_mode(true)
+
+-- ============================================================
+--  FONT / GENERAL
+-- ============================================================
+config.color_scheme = 'synthwave-everything'
+
+-- הערה: וודא שהפונטים האלו מותקנים בלינוקס שלך!
+-- אחרת Wezterm יחזור לפונט ברירת המחדל
+config.font = wezterm.font_with_fallback({
+  { family = 'MesloLGS NF',    weight = 'Regular' },
+  { family = 'JetBrains Mono', weight = 'Regular' },
+})
+config.font_size = 13.0 -- הורדתי קצת, 16 זה ענק בלינוקס בדרך כלל
+
+local TITLEBAR_COLOR = '#120820'
+
+-- ביטול הגדרות מק ספציפיות
+config.window_decorations = 'RESIZE' -- מבטל את הבר העליון של אובונטו למראה נקי
+config.window_frame = {
+  font = wezterm.font { family = 'MesloLGS NF', weight = 'Bold' },
+  font_size = 11.0,
+  active_titlebar_bg = TITLEBAR_COLOR,
+  inactive_titlebar_bg = TITLEBAR_COLOR,
+}
+
+config.hide_tab_bar_if_only_one_tab = false
+config.use_fancy_tab_bar = false
+config.tab_bar_at_bottom = true
+config.tab_max_width = 40
+
+-- תיקון Padding ללינוקס (ביטול הרווח העליון של המק)
+config.window_padding = {
+  left   = 4,
+  right  = 4,
+  top    = 4, -- הורד מ-30
+  bottom = 4,
+}
+
+-- ============================================================
+--  BACKGROUND / GLASS
+-- ============================================================
+config.window_background_opacity = 0.9
+config.text_background_opacity   = 0.98
+-- config.macos_window_background_blur = 10 -- לא רלוונטי ללינוקס
+
+-- אותו גרדיאנט בדיוק
+config.window_background_gradient = {
+  orientation = 'Vertical',
+  colors = {
+    '#050014', -- deep violet
+    '#2b0b3f', -- purple
+    '#61105e', -- magenta
+    '#9b197a', -- hot pink
+    '#ff4b81', -- bright pink
+    '#ffc46b', -- sunset orange bottom
+  },
+  interpolation = 'Linear',
+  blend = 'Rgb',
+  noise = 10,
+}
+
+config.inactive_pane_hsb = {
+  saturation = 0.9,
+  brightness = 0.35,
+}
+
+-- ============================================================
+--  COLORS / CURSOR / TABS
+-- ============================================================
+config.cursor_thickness = 2
+config.default_cursor_style = 'BlinkingBar'
+config.cursor_blink_rate = 700
+
+config.colors = {
+  foreground = '#f9f7ff',
+  background = '#050014',
+
+  cursor_bg = '#ffcc70',
+  cursor_fg = '#050014',
+  cursor_border = '#ffcc70',
+
+  selection_fg = 'none',
+  selection_bg = '#3b0f4a',
+
+  scrollbar_thumb = '#3b0f4a',
+  split = '#ff007c',
+
+  ansi = {
+    '#050014', '#ff5c57', '#5af78e', '#c5ff00',
+    '#57c7ff', '#ff6ac1', '#9aedfe', '#f1f1f0',
+  },
+  brights = {
+    '#686868', '#ff5c57', '#5af78e', '#d9ff4a',
+    '#57c7ff', '#ff6ac1', '#9aedfe', '#ffffff',
+  },
+
+  tab_bar = {
+    background = '#02000b',
+    active_tab = {
+      bg_color = '#ff007c',
+      fg_color = '#02000b',
+      intensity = 'Bold',
+      underline = 'None',
+      italic = false,
+      strikethrough = false,
+    },
+    inactive_tab = {
+      bg_color = '#1b1032',
+      fg_color = '#f1e9ff',
+      intensity = 'Normal',
+      underline = 'None',
+      italic = false,
+      strikethrough = false,
+    },
+    inactive_tab_hover = {
+      bg_color = '#321a4a',
+      fg_color = '#ffffff',
+      italic = true,
+    },
+    new_tab = {
+      bg_color = '#02000b',
+      fg_color = '#ffcc70',
+    },
+    new_tab_hover = {
+      bg_color = '#ffcc70',
+      fg_color = '#02000b',
+      italic = true,
+    },
+  },
+}
+
+-- ============================================================
+--  RIGHT STATUS BAR
+-- ============================================================
+wezterm.on('update-status', function(window, pane)
+  local cells = {}
+
+  local hostname = wezterm.hostname()
+  local cwd_uri = pane:get_current_working_dir()
+  if cwd_uri and cwd_uri.host then
+    hostname = cwd_uri.host
+  end
+  table.insert(cells, ' ' .. hostname)
+
+  local date = wezterm.strftime(' %a %b %-d %H:%M')
+  table.insert(cells, date)
+
+  -- הערה: בלינוקס (דסקטופ) לרוב אין סוללה, הקוד הזה בטוח ולא יקרוס
+  local batt_icons = { '', '', '', '', '' }
+  for _, b in ipairs(wezterm.battery_info()) do
+    local icon = batt_icons[math.ceil(b.state_of_charge * #batt_icons)]
+    table.insert(cells, string.format('%s %.0f%%', icon, b.state_of_charge * 100))
+  end
+
+  local text_fg = '#e5e1ff'
+  local colors = {
+    TITLEBAR_COLOR,
+    '#3b0f4a',
+    '#ff007c',
+    '#ff4b81',
+    '#ffc46b',
+    '#16e0ff',
+  }
+
+  local elements = {}
+  while #cells > 0 and #colors > 1 do
+    local text = table.remove(cells, 1)
+    local prev = table.remove(colors, 1)
+    local curr = colors[1]
+
+    table.insert(elements, { Background = { Color = prev } })
+    table.insert(elements, { Foreground = { Color = curr } })
+    table.insert(elements, { Text = '' })
+    table.insert(elements, { Background = { Color = curr } })
+    table.insert(elements, { Foreground = { Color = text_fg } })
+    table.insert(elements, { Text = ' ' .. text .. ' ' })
+  end
+
+  window:set_right_status(wezterm.format(elements))
+end)
+
+-- ============================================================
+--  KEYBINDINGS & TOGGLES
+-- ============================================================
+config.keys = {
+  -- סטנדרט לינוקס להעתק הדבק
+  { key = 'c', mods = 'CTRL|SHIFT', action = act.CopyTo 'Clipboard' },
+  { key = 'v', mods = 'CTRL|SHIFT', action = act.PasteFrom 'Clipboard' },
+
+  { key = 'Enter', mods = 'ALT',        action = act.ToggleFullScreen },
+  { key = 'q',     mods = 'ALT',        action = act.QuitApplication },
+
+  { key = 'o',     mods = 'ALT',        action = act.EmitEvent 'toggle-opacity' },
+  { key = 's',     mods = 'ALT',        action = act.SplitVertical   { domain = 'CurrentPaneDomain' } },
+  { key = 'd',     mods = 'ALT',        action = act.SplitHorizontal { domain = 'CurrentPaneDomain' } },
+  { key = 't',     mods = 'ALT',        action = act.SpawnTab 'DefaultDomain' },
+  { key = 'w',     mods = 'ALT',        action = act.CloseCurrentPane { confirm = true } },
+  { key = '=',     mods = 'CTRL',       action = act.IncreaseFontSize }, -- שיניתי ל-CTRL שיהיה נוח יותר
+  { key = '-',     mods = 'CTRL',       action = act.DecreaseFontSize },
+  { key = '0',     mods = 'CTRL',       action = act.ResetFontSize },
+  { key = '[',     mods = 'ALT',        action = act.ActivateTabRelative(-1) },
+  { key = ']',     mods = 'ALT',        action = act.ActivateTabRelative(1) },
+
+  { key = 'h', mods = 'ALT',            action = act.ActivatePaneDirection 'Left'  },
+  { key = 'l', mods = 'ALT',            action = act.ActivatePaneDirection 'Right' },
+  { key = 'j', mods = 'ALT',            action = act.ActivatePaneDirection 'Down'  },
+  { key = 'k', mods = 'ALT',            action = act.ActivatePaneDirection 'Up'    },
+}
+
+wezterm.on('toggle-opacity', function(window, _)
+  local overrides = window:get_config_overrides() or {}
+  local current = overrides.window_background_opacity or config.window_background_opacity
+
+  if current >= 1.0 then
+    overrides.window_background_opacity = 0.90
+  else
+    overrides.window_background_opacity = 1.0
+  end
+
+  window:set_config_overrides(overrides)
+end)
+
+config.audible_bell = 'Disabled'
+
+return config
